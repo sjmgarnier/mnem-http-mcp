@@ -56,9 +56,9 @@ async function getLocalClient(repoPath: string): Promise<MnemClient> {
     serverCache.set(repoPath, handle);
     const client = new MnemClient(handle.port, handle.token);
     clientCache.set(repoPath, client);
-    inFlight.delete(repoPath);
     return client;
   })();
+  p.finally(() => inFlight.delete(repoPath));
   inFlight.set(repoPath, p);
   return p;
 }
