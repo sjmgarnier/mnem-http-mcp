@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO="you/mnem-http-mcp"
+REPO="sjmgarnier/mnem-http-mcp"
 INSTALL_DIR="${INSTALL_DIR:-$HOME/.local/bin}"
 BINARY_NAME="mnem-http-mcp"
 

@@ -12,14 +12,14 @@ A drop-in replacement for `mnem mcp` that routes all operations through `mnem`'s
 ### With the install script (recommended)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/your-org/mnem-http-mcp/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/sjmgarnier/mnem-http-mcp/main/install.sh | bash
 ```
 
 This downloads the correct binary for your platform to `~/.local/bin/mnem-http-mcp`. Make sure `~/.local/bin` is in your `PATH`.
 
 ### Manual download
 
-Download the binary for your platform from the [latest GitHub release](https://github.com/your-org/mnem-http-mcp/releases/latest):
+Download the binary for your platform from the [latest GitHub release](https://github.com/sjmgarnier/mnem-http-mcp/releases/latest):
 
 | Platform | Binary |
 |---|---|
