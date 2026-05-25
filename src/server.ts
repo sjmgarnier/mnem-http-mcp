@@ -24,7 +24,8 @@ export function readServerDescriptor(graphRoot: string): ServerDescriptor | null
   if (!existsSync(p)) return null;
   try {
     return JSON.parse(readFileSync(p, "utf8")) as ServerDescriptor;
-  } catch {
+  } catch (e) {
+    console.error(`[mnem-http-mcp] warning: failed to parse descriptor at ${descriptorPath(graphRoot)}: ${e}`);
     return null;
   }
 }
@@ -48,9 +49,13 @@ export function generateToken(): string {
 export async function findFreePort(): Promise<number> {
   return new Promise((resolve, reject) => {
     const srv = createServer();
+    srv.on("error", reject);
     srv.listen(0, "127.0.0.1", () => {
       const addr = srv.address();
-      if (!addr || typeof addr === "string") return reject(new Error("unexpected addr"));
+      if (!addr || typeof addr === "string") {
+        srv.close();
+        return reject(new Error("unexpected addr"));
+      }
       const port = addr.port;
       srv.close(() => resolve(port));
     });
@@ -95,6 +100,9 @@ export async function ensureServer(
   const deadline = Date.now() + 10_000;
   while (Date.now() < deadline) {
     if (await isReachable(port)) break;
+    if (proc.exitCode !== null) {
+      throw new Error(`mnem http server exited with code ${proc.exitCode} for ${graphRoot}`);
+    }
     await Bun.sleep(100);
   }
   if (!await isReachable(port)) {
