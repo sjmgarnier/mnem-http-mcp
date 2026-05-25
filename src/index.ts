@@ -46,14 +46,21 @@ const globalClient = new MnemClient(globalHandle.port, globalHandle.token);
 
 const serverCache = new Map<string, ServerHandle>();
 const clientCache = new Map<string, MnemClient>();
+const inFlight = new Map<string, Promise<MnemClient>>();
 
 async function getLocalClient(repoPath: string): Promise<MnemClient> {
   if (clientCache.has(repoPath)) return clientCache.get(repoPath)!;
-  const handle = await ensureServer(repoPath, mnemBin, debug);
-  serverCache.set(repoPath, handle);
-  const client = new MnemClient(handle.port, handle.token);
-  clientCache.set(repoPath, client);
-  return client;
+  if (inFlight.has(repoPath)) return inFlight.get(repoPath)!;
+  const p = (async () => {
+    const handle = await ensureServer(repoPath, mnemBin, debug);
+    serverCache.set(repoPath, handle);
+    const client = new MnemClient(handle.port, handle.token);
+    clientCache.set(repoPath, client);
+    inFlight.delete(repoPath);
+    return client;
+  })();
+  inFlight.set(repoPath, p);
+  return p;
 }
 
 // ── Shutdown handler ─────────────────────────────────────────────────────────
