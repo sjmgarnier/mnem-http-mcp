@@ -40,11 +40,18 @@ After installing the binary, register it with your MCP host:
 mnem-http-mcp integrate
 
 # Non-interactive
-mnem-http-mcp integrate --claude      # Claude Code only
-mnem-http-mcp integrate --opencode    # OpenCode only
+mnem-http-mcp integrate --claude           # Claude Code only
+mnem-http-mcp integrate --claude-desktop   # Claude Desktop only
+mnem-http-mcp integrate --opencode         # OpenCode only
 ```
 
-This writes the MCP entry to `~/.claude/settings.json` and/or `~/.config/opencode/opencode.json`. Restart the host after running.
+| Flag | Config file |
+|---|---|
+| `--claude` | `~/.claude/settings.json` |
+| `--claude-desktop` | `~/Library/Application Support/Claude/claude_desktop_config.json` |
+| `--opencode` | `~/.config/opencode/opencode.json` |
+
+Restart the host after running.
 
 ## How it works
 
