@@ -65,13 +65,18 @@ async function getLocalClient(repoPath: string): Promise<MnemClient> {
 
 // ── Shutdown handler ─────────────────────────────────────────────────────────
 
+let shuttingDown = false;
 function shutdown() {
+  if (shuttingDown) return;
+  shuttingDown = true;
   shutdownServer(globalHandle, globalRepoPath);
   for (const [path, handle] of serverCache) shutdownServer(handle, path);
   process.exit(0);
 }
 process.on("SIGINT", shutdown);
 process.on("SIGTERM", shutdown);
+process.stdin.on("close", shutdown);
+process.stdin.on("end", shutdown);
 
 // ── MCP server ───────────────────────────────────────────────────────────────
 

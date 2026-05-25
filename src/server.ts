@@ -151,6 +151,6 @@ export async function ensureServer(
 
 export function shutdownServer(handle: ServerHandle, graphRoot: string): void {
   if (!handle.owned) return;
-  handle.process?.kill();
+  handle.process?.kill("SIGKILL");
   removeServerDescriptor(graphRoot);
 }
