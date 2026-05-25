@@ -5,6 +5,7 @@ dist/
 .DS_Store
 .env
 .env.*
+docs/
 # ProtonDrive sync conflict artifacts
 *\(# Edit conflict*
 # Bun build cache
