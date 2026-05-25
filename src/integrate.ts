@@ -29,7 +29,7 @@ export function patchClaudeDesktopSettings(configPath: string, binaryPath: strin
 export function patchOpenCodeSettings(configPath: string, binaryPath: string): void {
   const config = readJson(configPath);
   if (!config.mcp) config.mcp = {};
-  (config.mcp as Record<string, unknown>).mnem = { command: binaryPath, type: "local" };
+  (config.mcp as Record<string, unknown>).mnem = { command: [binaryPath], type: "local" };
   writeJson(configPath, config);
 }
 
