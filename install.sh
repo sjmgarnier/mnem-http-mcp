@@ -22,8 +22,8 @@ case "$OS" in
   *) echo "Unsupported OS: $OS"; exit 1 ;;
 esac
 
-ARTIFACT="${BINARY_NAME}-${PLATFORM}"
-[ "$OS" = "windows" ] && ARTIFACT="${ARTIFACT}.exe"
+ARTIFACT="mnem-http-mcp-${PLATFORM}"
+case "$OS" in msys*|cygwin*|mingw*) ARTIFACT="${ARTIFACT}.exe" ;; esac
 
 echo "Downloading mnem-http-mcp for $PLATFORM..."
 LATEST=$(curl -fsSL "https://api.github.com/repos/$REPO/releases/latest" | grep '"tag_name"' | sed 's/.*"tag_name": "\(.*\)".*/\1/')
