@@ -1,50 +1,76 @@
 import type { Tool } from "@modelcontextprotocol/sdk/types.js";
 
-export const LOCAL_TOOLS: Tool[] = [
+const ROUTE = ' Routing (required): pass {"global":true} for the global graph, or {"repo":"/project/dir"} for a local graph.';
+
+export const TOOLS: Tool[] = [
   {
     name: "mnem_stats",
-    description: "Repository overview: op-head, head commit, ref summary, known labels. Cheap; call this first to discover what a repo contains.",
-    inputSchema: { type: "object", properties: {}, required: [], additionalProperties: false },
+    description: "Repository overview: op-head, head commit, ref summary, known labels. Cheap; call this first to discover what a repo contains." + ROUTE,
+    inputSchema: {
+      type: "object",
+      properties: {
+        global: { type: "boolean" },
+        repo: { type: "string" },
+      },
+      additionalProperties: false,
+    },
   },
   {
     name: "mnem_schema",
-    description: "Inspect the schema of the current commit: node labels, edge predicates, index presence. This tool is available via MCP only; there is no HTTP equivalent.",
-    inputSchema: { type: "object", properties: {}, required: [], additionalProperties: false },
+    description: "Inspect the schema of the current commit: node labels, edge predicates, index presence. This tool is available via MCP only; there is no HTTP equivalent." + ROUTE,
+    inputSchema: {
+      type: "object",
+      properties: {
+        global: { type: "boolean" },
+        repo: { type: "string" },
+      },
+      additionalProperties: false,
+    },
   },
   {
     name: "mnem_recent",
-    description: "List recent operations from the op-log.",
+    description: "List recent operations from the op-log." + ROUTE,
     inputSchema: {
       type: "object",
-      properties: { limit: { type: "integer", default: 20 } },
+      properties: {
+        limit: { type: "integer", default: 20 },
+        global: { type: "boolean" },
+        repo: { type: "string" },
+      },
       additionalProperties: false,
     },
   },
   {
     name: "mnem_list_tags",
-    description: "List all tags in the current repo.",
+    description: "List all tags in the current repo." + ROUTE,
     inputSchema: {
       type: "object",
-      properties: { json: { type: "boolean" } },
+      properties: {
+        json: { type: "boolean" },
+        global: { type: "boolean" },
+        repo: { type: "string" },
+      },
       additionalProperties: false,
     },
   },
   {
     name: "mnem_list_nodes",
-    description: "List nodes, optionally filtered by label.",
+    description: "List nodes, optionally filtered by label." + ROUTE,
     inputSchema: {
       type: "object",
       properties: {
         label: { type: "string" },
         limit: { type: "integer" },
         offset: { type: "integer" },
+        global: { type: "boolean" },
+        repo: { type: "string" },
       },
       additionalProperties: false,
     },
   },
   {
     name: "mnem_search",
-    description: "Search for nodes by label and/or property filter.",
+    description: "Search for nodes by label and/or property filter." + ROUTE,
     inputSchema: {
       type: "object",
       properties: {
@@ -52,23 +78,29 @@ export const LOCAL_TOOLS: Tool[] = [
         limit: { type: "integer" },
         where: { type: "object" },
         with_outgoing: { type: "array", items: { type: "string" } },
+        global: { type: "boolean" },
+        repo: { type: "string" },
       },
       additionalProperties: false,
     },
   },
   {
     name: "mnem_get_node",
-    description: "Fetch a single node by UUID.",
+    description: "Fetch a single node by UUID." + ROUTE,
     inputSchema: {
       type: "object",
-      properties: { id: { type: "string", description: "Node UUID (hyphenated form)." } },
+      properties: {
+        id: { type: "string", description: "Node UUID (hyphenated form)." },
+        global: { type: "boolean" },
+        repo: { type: "string" },
+      },
       required: ["id"],
       additionalProperties: false,
     },
   },
   {
     name: "mnem_retrieve",
-    description: "Agent-facing retrieval: hybrid BM25 + vector + graph-expand. The primary tool for querying the graph.",
+    description: "Agent-facing retrieval: hybrid BM25 + vector + graph-expand. The primary tool for querying the graph." + ROUTE,
     inputSchema: {
       type: "object",
       properties: {
@@ -89,19 +121,23 @@ export const LOCAL_TOOLS: Tool[] = [
         rerank_top_k: { type: "integer" },
         vector: { type: "object" },
         vector_cap: { type: "integer" },
+        global: { type: "boolean" },
+        repo: { type: "string" },
       },
       additionalProperties: false,
     },
   },
   {
     name: "mnem_vector_search",
-    description: "Search by raw embedding vector.",
+    description: "Search by raw embedding vector." + ROUTE,
     inputSchema: {
       type: "object",
       properties: {
         model: { type: "string" },
         vector: { type: "array", items: { type: "number" } },
         k: { type: "integer" },
+        global: { type: "boolean" },
+        repo: { type: "string" },
       },
       required: ["model", "vector"],
       additionalProperties: false,
@@ -109,7 +145,7 @@ export const LOCAL_TOOLS: Tool[] = [
   },
   {
     name: "mnem_commit",
-    description: "Commit one or more nodes (and optional edges) in a single operation.",
+    description: "Commit one or more nodes (and optional edges) in a single operation." + ROUTE,
     inputSchema: {
       type: "object",
       properties: {
@@ -118,6 +154,8 @@ export const LOCAL_TOOLS: Tool[] = [
         edges: { type: "array" },
         message: { type: "string" },
         task_id: { type: "string" },
+        global: { type: "boolean" },
+        repo: { type: "string" },
       },
       required: ["agent_id"],
       additionalProperties: false,
@@ -125,7 +163,7 @@ export const LOCAL_TOOLS: Tool[] = [
   },
   {
     name: "mnem_commit_relation",
-    description: "Compound write: resolve-or-create subject node, resolve-or-create object node, connect with edge.",
+    description: "Compound write: resolve-or-create subject node, resolve-or-create object node, connect with edge." + ROUTE,
     inputSchema: {
       type: "object",
       properties: {
@@ -140,6 +178,8 @@ export const LOCAL_TOOLS: Tool[] = [
         anchor: { type: "string", default: "name" },
         agent_id: { type: "string" },
         message: { type: "string" },
+        global: { type: "boolean" },
+        repo: { type: "string" },
       },
       required: ["subject", "predicate", "object"],
       additionalProperties: false,
@@ -147,7 +187,7 @@ export const LOCAL_TOOLS: Tool[] = [
   },
   {
     name: "mnem_resolve_or_create",
-    description: "Find-or-create an entity node by a natural-language name.",
+    description: "Find-or-create an entity node by a natural-language name." + ROUTE,
     inputSchema: {
       type: "object",
       properties: {
@@ -157,16 +197,17 @@ export const LOCAL_TOOLS: Tool[] = [
         kind: { type: "string" },
         prop_name: { type: "string" },
         extra_props: { type: "object" },
-        global: { type: "boolean" },
         agent_id: { type: "string" },
         task_id: { type: "string" },
+        global: { type: "boolean" },
+        repo: { type: "string" },
       },
       additionalProperties: false,
     },
   },
   {
     name: "mnem_tombstone_node",
-    description: "Soft-delete a node. Tombstoned nodes are excluded from retrieve but remain in the blockstore.",
+    description: "Soft-delete a node. Tombstoned nodes are excluded from retrieve but remain in the blockstore." + ROUTE,
     inputSchema: {
       type: "object",
       properties: {
@@ -174,6 +215,8 @@ export const LOCAL_TOOLS: Tool[] = [
         agent_id: { type: "string" },
         reason: { type: "string" },
         message: { type: "string" },
+        global: { type: "boolean" },
+        repo: { type: "string" },
       },
       required: ["id", "agent_id"],
       additionalProperties: false,
@@ -181,13 +224,15 @@ export const LOCAL_TOOLS: Tool[] = [
   },
   {
     name: "mnem_delete_node",
-    description: "Hard-delete a node. No audit trail.",
+    description: "Hard-delete a node. No audit trail." + ROUTE,
     inputSchema: {
       type: "object",
       properties: {
         id: { type: "string" },
         agent_id: { type: "string" },
         message: { type: "string" },
+        global: { type: "boolean" },
+        repo: { type: "string" },
       },
       required: ["id", "agent_id"],
       additionalProperties: false,
@@ -195,13 +240,15 @@ export const LOCAL_TOOLS: Tool[] = [
   },
   {
     name: "mnem_traverse",
-    description: "From a start node, list outgoing neighbours reachable via specified edge labels.",
+    description: "From a start node, list outgoing neighbours reachable via specified edge labels." + ROUTE,
     inputSchema: {
       type: "object",
       properties: {
         start: { type: "string" },
         edge_labels: { type: "array", items: { type: "string" } },
         limit: { type: "integer", default: 25, minimum: 1, maximum: 200 },
+        global: { type: "boolean" },
+        repo: { type: "string" },
       },
       required: ["start"],
       additionalProperties: false,
@@ -209,7 +256,7 @@ export const LOCAL_TOOLS: Tool[] = [
   },
   {
     name: "mnem_incoming_edges",
-    description: "List nodes that point to the given node.",
+    description: "List nodes that point to the given node." + ROUTE,
     inputSchema: {
       type: "object",
       properties: {
@@ -217,6 +264,8 @@ export const LOCAL_TOOLS: Tool[] = [
         etype: { type: "string" },
         limit: { type: "integer" },
         json: { type: "boolean" },
+        global: { type: "boolean" },
+        repo: { type: "string" },
       },
       required: ["node"],
       additionalProperties: false,
@@ -224,7 +273,7 @@ export const LOCAL_TOOLS: Tool[] = [
   },
   {
     name: "mnem_ingest",
-    description: "Ingest a source as a Doc + Chunk + Entity subgraph.",
+    description: "Ingest a source as a Doc + Chunk + Entity subgraph." + ROUTE,
     inputSchema: {
       type: "object",
       properties: {
@@ -237,13 +286,15 @@ export const LOCAL_TOOLS: Tool[] = [
         max_tokens: { type: "integer" },
         overlap: { type: "integer" },
         message: { type: "string" },
+        global: { type: "boolean" },
+        repo: { type: "string" },
       },
       additionalProperties: false,
     },
   },
   {
     name: "mnem_community_summarize",
-    description: "Summarize a community of nodes with MMR sentence selection.",
+    description: "Summarize a community of nodes with MMR sentence selection." + ROUTE,
     inputSchema: {
       type: "object",
       properties: {
@@ -251,74 +302,10 @@ export const LOCAL_TOOLS: Tool[] = [
         query: { type: "string" },
         k: { type: "integer" },
         mmr_lambda: { type: "number" },
+        global: { type: "boolean" },
+        repo: { type: "string" },
       },
       required: ["node_ids"],
-      additionalProperties: false,
-    },
-  },
-];
-
-export const GLOBAL_TOOLS: Tool[] = [
-  {
-    name: "mnem_global_retrieve",
-    description: "Search the global graph (~/.mnemglobal/.mnem/) only.",
-    inputSchema: {
-      type: "object",
-      properties: {
-        text: { type: "string" },
-        limit: { type: "integer" },
-        token_budget: { type: "integer" },
-        vector: { type: "object" },
-      },
-      additionalProperties: false,
-    },
-  },
-  {
-    name: "mnem_global_add",
-    description: "Add a node (or nodes) directly to the global graph.",
-    inputSchema: {
-      type: "object",
-      properties: {
-        agent_id: { type: "string" },
-        nodes: { type: "array" },
-        edges: { type: "array" },
-        message: { type: "string" },
-      },
-      required: ["agent_id"],
-      additionalProperties: false,
-    },
-  },
-  {
-    name: "mnem_global_ingest",
-    description: "Ingest a source into the global graph.",
-    inputSchema: {
-      type: "object",
-      properties: {
-        path: { type: "string" },
-        text: { type: "string" },
-        source: { type: "string" },
-        ntype: { type: "string" },
-        agent_id: { type: "string" },
-        chunker: { type: "string" },
-        max_tokens: { type: "integer" },
-        overlap: { type: "integer" },
-        message: { type: "string" },
-      },
-      additionalProperties: false,
-    },
-  },
-  {
-    name: "mnem_global_tombstone_node",
-    description: "Soft-delete a node in the global graph.",
-    inputSchema: {
-      type: "object",
-      properties: {
-        id: { type: "string" },
-        agent_id: { type: "string" },
-        reason: { type: "string" },
-        message: { type: "string" },
-      },
-      required: ["id", "agent_id"],
       additionalProperties: false,
     },
   },
