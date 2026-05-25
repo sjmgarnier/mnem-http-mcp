@@ -3,3 +3,5 @@ dist/
 *.redb
 .mnem/http-server.json
 .DS_Store
+.env
+.env.*
