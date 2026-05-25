@@ -84,7 +84,7 @@ process.on("SIGTERM", shutdown);
 
 // ── MCP server ───────────────────────────────────────────────────────────────
 
-const tools = [...GLOBAL_TOOLS, ...(localClient ? LOCAL_TOOLS : [])];
+const tools = [...GLOBAL_TOOLS, ...LOCAL_TOOLS];
 
 const server = new Server(
   { name: "mnem-http-mcp", version: "0.1.0" },
