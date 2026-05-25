@@ -160,10 +160,5 @@ export async function mnem_ingest(args: Args, client: MnemClient): Promise<strin
 }
 
 export async function mnem_community_summarize(args: Args, _client: MnemClient, mnemBin: string, repoPath: string): Promise<string> {
-  const ids = (args.node_ids as string[]).join(",");
-  const cliArgs = ["community-summarize", "--nodes", ids];
-  if (args.k) cliArgs.push("--k", String(args.k));
-  if (args.query) cliArgs.push("--query", String(args.query));
-  if (args.mmr_lambda !== undefined) cliArgs.push("--mmr-lambda", String(args.mmr_lambda));
-  return cliJson(mnemBin, repoPath, cliArgs);
+  return "mnem_community_summarize is not available in this version of mnem";
 }
