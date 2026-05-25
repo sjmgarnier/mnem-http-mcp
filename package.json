@@ -1,0 +1,19 @@
+{
+  "name": "mnem-http-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for mnem knowledge graphs via HTTP — no persistent DB lock",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run src/index.ts",
+    "test": "bun test",
+    "build:current": "bun build --compile src/index.ts --outfile dist/mnem-http-mcp",
+    "build:all": "bash scripts/build-all.sh"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/node": "^20.0.0"
+  }
+}
