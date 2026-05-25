@@ -22,7 +22,7 @@ export async function resolveClient(
     if (hasGlobal) {
       console.error('[mnem-http-mcp] WARNING: both "global" and "repo" provided; ignoring "global", using "repo".');
     }
-    const resolved = walkUp(String(args.repo));
+    const resolved = walkUp(args.repo as string);
     if (!resolved) {
       throw new Error(`No .mnem graph found at or above: ${args.repo}`);
     }

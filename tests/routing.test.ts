@@ -7,7 +7,10 @@ import type { MnemClient } from "../src/client.ts";
 
 const TMP = join(tmpdir(), "mnem-route-test-" + Date.now());
 
-beforeEach(() => mkdirSync(join(TMP, ".mnem"), { recursive: true }));
+beforeEach(() => {
+  mkdirSync(join(TMP, ".mnem"), { recursive: true });
+  getLocalClient.mockClear();
+});
 afterEach(() => rmSync(TMP, { recursive: true, force: true }));
 
 const fakeGlobalClient = { baseUrl: "http://127.0.0.1:9999" } as unknown as MnemClient;
