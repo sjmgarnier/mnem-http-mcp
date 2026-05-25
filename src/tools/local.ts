@@ -55,7 +55,7 @@ export async function mnem_vector_search(args: Args, _client: MnemClient, mnemBi
 }
 
 export async function mnem_commit(args: Args, client: MnemClient): Promise<string> {
-  const author = String(args.agent_id);
+  const author = String(args.agent_id ?? "mnem-http-mcp");
   const message = args.message ? String(args.message) : undefined;
   const nodes = (args.nodes as any[] ?? []);
   const edges = (args.edges as any[] ?? []);
