@@ -1,7 +1,7 @@
 node_modules/
 dist/
 *.redb
-.mnem/http-server.json
+.mnem/
 .DS_Store
 .env
 .env.*
