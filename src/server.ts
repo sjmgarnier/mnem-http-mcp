@@ -3,6 +3,20 @@ import { join } from "node:path";
 import { createServer } from "node:net";
 import { randomBytes } from "node:crypto";
 
+export function walkUp(from: string): string | null {
+  let current = from;
+  while (true) {
+    if (existsSync(join(current, ".mnem"))) return current;
+    const parent = join(current, "..");
+    if (parent === current) return null;
+    current = parent;
+  }
+}
+
+export function isLockError(stderr: string): boolean {
+  return stderr.includes("Database already open. Cannot acquire lock.");
+}
+
 export interface ServerDescriptor {
   port: number;
   token: string;

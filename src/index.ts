@@ -3,8 +3,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 import { homedir } from "node:os";
 import { join } from "node:path";
-import { existsSync } from "node:fs";
-import { ensureServer, shutdownServer, type ServerHandle } from "./server.ts";
+import { ensureServer, shutdownServer, walkUp, type ServerHandle } from "./server.ts";
 import { MnemClient } from "./client.ts";
 import { LOCAL_TOOLS, GLOBAL_TOOLS } from "./tools/shared.ts";
 import * as local from "./tools/local.ts";
@@ -32,16 +31,6 @@ if (isIntegrate) {
 }
 
 // ── Local repo detection ─────────────────────────────────────────────────────
-
-function walkUp(from: string): string | null {
-  let current = from;
-  while (true) {
-    if (existsSync(join(current, ".mnem"))) return current;
-    const parent = join(current, "..");
-    if (parent === current) return null;
-    current = parent;
-  }
-}
 
 const localRepoPath = localRepoOverride ?? walkUp(process.cwd());
 const globalRepoPath = join(homedir(), ".mnemglobal");
