@@ -55,13 +55,18 @@ Restart the host after running.
 
 ## How it works
 
-On startup the MCP:
+On startup the MCP starts (or connects to) a `mnem http` server for the global graph at `~/.mnemglobal`, registers 18 MCP tools, and begins the JSON-RPC loop. No local graph is opened at startup.
 
-1. Walks up from the working directory looking for a local `.mnem/` graph. If found, starts (or connects to) a `mnem http` server for it.
-2. Always starts (or connects to) a `mnem http` server for the global graph at `~/.mnemglobal`.
-3. Registers all 22 MCP tools and begins the JSON-RPC loop.
+Each tool call must specify its target graph:
 
-If a `mnem http` server is already running (detected via `/v1/healthz`), the MCP connects to it and leaves it alone on shutdown. If the MCP spawned the server itself, it shuts it down when it exits.
+| Parameter | Behaviour |
+|---|---|
+| `"global": true` | Route to the global graph (`~/.mnemglobal`) |
+| `"repo": "/path/to/project"` | Walk up from that path to find `.mnem/`, start or connect to a `mnem http` server for it, and route the call there |
+
+Omitting both raises an error. If both are provided, `repo` takes precedence (with a warning).
+
+Local servers are started on first use and cached for the MCP's process lifetime. If a `mnem http` server is already running for a given graph (detected via `http-server.json` + `/v1/healthz`), the MCP connects to it and leaves it alone on shutdown. If the MCP spawned the server itself, it shuts it down when it exits.
 
 Port and auth token are stored in `.mnem/http-server.json` inside each graph root, so external processes (Python scripts, other agents) can discover and connect to the same server:
 
@@ -89,21 +94,18 @@ requests.post(f"http://127.0.0.1:{port}/v1/edges",
 ## CLI flags
 
 ```
-mnem-http-mcp [--mnem-bin <path>] [--local-repo <path>] [--debug]
-mnem-http-mcp integrate [--claude] [--opencode]
+mnem-http-mcp [--mnem-bin <path>] [--debug]
+mnem-http-mcp integrate [--claude] [--claude-desktop] [--opencode]
 ```
 
 | Flag | Default | Description |
 |---|---|---|
 | `--mnem-bin <path>` | `mnem` | Path to the mnem binary |
-| `--local-repo <path>` | auto-detect | Override local graph directory |
-| `--debug` | off | Log tool call names and HTTP request/response to stderr |
+| `--debug` | off | Log tool calls and real-time server stderr to stderr |
 
 ## Tools
 
-All tools match the existing `mnem mcp` surface exactly — this MCP is a drop-in replacement.
-
-### Local graph tools (requires a `.mnem/` directory in or above the working directory)
+Every tool accepts `"global": true` or `"repo": "/path"` to select the target graph. One is required per call.
 
 | Tool | Description |
 |---|---|
@@ -125,15 +127,6 @@ All tools match the existing `mnem mcp` surface exactly — this MCP is a drop-i
 | `mnem_incoming_edges` | Nodes pointing to a given node |
 | `mnem_schema` | Node labels, edge predicates, index presence |
 | `mnem_community_summarize` | Summarize a community of nodes (not yet available in this version of mnem) |
-
-### Global graph tools
-
-| Tool | Description |
-|---|---|
-| `mnem_global_retrieve` | Retrieve from the global graph |
-| `mnem_global_add` | Add nodes/edges to the global graph |
-| `mnem_global_ingest` | Ingest into the global graph |
-| `mnem_global_tombstone_node` | Soft-delete a node in the global graph |
 
 ## Development
 

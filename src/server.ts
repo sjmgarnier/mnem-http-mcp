@@ -110,11 +110,16 @@ export async function ensureServer(
     }
   );
 
-  // Drain stderr asynchronously; forward to console.error in debug mode
+  if (!proc.stderr) throw new Error(`Failed to open stderr pipe for mnem http at ${graphRoot}`);
+
+  // Stream stderr: accumulate for error detection; forward each chunk in real-time in debug mode
   let stderrText = "";
   const drainStderr = (async () => {
-    stderrText = await Bun.readableStreamToText(proc.stderr as ReadableStream);
-    if (debug) console.error(stderrText);
+    for await (const chunk of proc.stderr as ReadableStream<Uint8Array>) {
+      const text = new TextDecoder().decode(chunk);
+      stderrText += text;
+      if (debug) process.stderr.write(chunk);
+    }
   })();
 
   const deadline = Date.now() + 10_000;
