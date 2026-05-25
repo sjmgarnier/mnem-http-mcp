@@ -117,6 +117,7 @@ All tools match the existing `mnem mcp` surface exactly — this MCP is a drop-i
 | `mnem_traverse` | Outgoing neighbours via edge labels |
 | `mnem_incoming_edges` | Nodes pointing to a given node |
 | `mnem_schema` | Node labels, edge predicates, index presence |
+| `mnem_community_summarize` | Summarize a community of nodes (not yet available in this version of mnem) |
 
 ### Global graph tools
 
