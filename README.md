@@ -33,25 +33,43 @@ Place it somewhere on your `PATH` and make it executable (`chmod +x` on macOS/Li
 
 ## Host integration
 
-After installing the binary, register it with your MCP host:
+Add one entry to your MCP host's config, then restart the host.
+
+**Claude Code** (`~/.claude/settings.json`):
+```json
+{
+  "mcpServers": {
+    "mnem": { "command": "/path/to/mnem-http-mcp" }
+  }
+}
+```
+
+**Claude Desktop** (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+```json
+{
+  "mcpServers": {
+    "mnem": { "command": "/path/to/mnem-http-mcp" }
+  }
+}
+```
+
+**OpenCode** (`~/.config/opencode/opencode.json`):
+```json
+{
+  "mcp": {
+    "mnem": { "command": "/path/to/mnem-http-mcp", "type": "local" }
+  }
+}
+```
+
+The `integrate` subcommand does this automatically:
 
 ```bash
-# Interactive — prompts for each detected platform
-mnem-http-mcp integrate
-
-# Non-interactive
+mnem-http-mcp integrate              # prompts for each detected host
 mnem-http-mcp integrate --claude           # Claude Code only
 mnem-http-mcp integrate --claude-desktop   # Claude Desktop only
 mnem-http-mcp integrate --opencode         # OpenCode only
 ```
-
-| Flag | Config file |
-|---|---|
-| `--claude` | `~/.claude/settings.json` |
-| `--claude-desktop` | `~/Library/Application Support/Claude/claude_desktop_config.json` |
-| `--opencode` | `~/.config/opencode/opencode.json` |
-
-Restart the host after running.
 
 ## How it works
 
@@ -98,10 +116,20 @@ mnem-http-mcp [--mnem-bin <path>] [--debug]
 mnem-http-mcp integrate [--claude] [--claude-desktop] [--opencode]
 ```
 
+**Server flags:**
+
 | Flag | Default | Description |
 |---|---|---|
 | `--mnem-bin <path>` | `mnem` | Path to the mnem binary |
 | `--debug` | off | Log tool calls and real-time server stderr to stderr |
+
+**`integrate` flags:**
+
+| Flag | Config file patched |
+|---|---|
+| `--claude` | `~/.claude/settings.json` |
+| `--claude-desktop` | `~/Library/Application Support/Claude/claude_desktop_config.json` |
+| `--opencode` | `~/.config/opencode/opencode.json` |
 
 ## Tools
 
