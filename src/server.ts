@@ -106,22 +106,36 @@ export async function ensureServer(
     {
       env: { ...process.env, MNEM_HTTP_PUSH_TOKEN: token },
       stdout: "ignore",
-      stderr: debug ? "inherit" : "ignore",
+      stderr: "pipe",
     }
   );
 
-  // Wait for server to be ready (up to 10s)
+  // Drain stderr asynchronously; forward to console.error in debug mode
+  let stderrText = "";
+  const drainStderr = (async () => {
+    stderrText = await Bun.readableStreamToText(proc.stderr as ReadableStream);
+    if (debug) console.error(stderrText);
+  })();
+
   const deadline = Date.now() + 10_000;
   while (Date.now() < deadline) {
     if (await isReachable(port)) break;
     if (proc.exitCode !== null) {
-      throw new Error(`mnem http server exited with code ${proc.exitCode} for ${graphRoot}`);
+      await drainStderr;
+      if (isLockError(stderrText)) {
+        throw new Error(
+          `mnem database at ${graphRoot} is already held by another process. ` +
+          `Stop the other server, or add an http-server.json descriptor at ` +
+          `${join(graphRoot, ".mnem", "http-server.json")} to connect to it.`
+        );
+      }
+      throw new Error(`mnem http server exited with code ${proc.exitCode} for ${graphRoot}: ${stderrText.trim()}`);
     }
     await Bun.sleep(100);
   }
   if (!await isReachable(port)) {
     proc.kill();
-    throw new Error(`mnem http server failed to start for ${graphRoot}`);
+    throw new Error(`mnem http server failed to start within 10s for ${graphRoot}`);
   }
 
   writeServerDescriptor(graphRoot, { port, token });
