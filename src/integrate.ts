@@ -19,6 +19,13 @@ export function patchClaudeSettings(configPath: string, binaryPath: string): voi
   writeJson(configPath, config);
 }
 
+export function patchClaudeDesktopSettings(configPath: string, binaryPath: string): void {
+  const config = readJson(configPath);
+  if (!config.mcpServers) config.mcpServers = {};
+  (config.mcpServers as Record<string, unknown>).mnem = { command: binaryPath };
+  writeJson(configPath, config);
+}
+
 export function patchOpenCodeSettings(configPath: string, binaryPath: string): void {
   const config = readJson(configPath);
   if (!config.mcp) config.mcp = {};
@@ -31,11 +38,12 @@ async function prompt(question: string): Promise<string> {
   return new Promise((resolve) => rl.question(question, (ans) => { rl.close(); resolve(ans); }));
 }
 
-export async function runIntegrate(binaryPath: string, flags: { claude?: boolean; opencode?: boolean }): Promise<void> {
+export async function runIntegrate(binaryPath: string, flags: { claude?: boolean; claudeDesktop?: boolean; opencode?: boolean }): Promise<void> {
   const claudeConfig = join(homedir(), ".claude", "settings.json");
+  const claudeDesktopConfig = join(homedir(), "Library", "Application Support", "Claude", "claude_desktop_config.json");
   const opencodeConfig = join(homedir(), ".config", "opencode", "opencode.json");
 
-  const doAll = !flags.claude && !flags.opencode;
+  const doAll = !flags.claude && !flags.claudeDesktop && !flags.opencode;
 
   if (flags.claude || (doAll && existsSync(claudeConfig))) {
     let doClaude = true;
@@ -46,6 +54,18 @@ export async function runIntegrate(binaryPath: string, flags: { claude?: boolean
     if (doClaude) {
       patchClaudeSettings(claudeConfig, binaryPath);
       console.log(`✓ Claude Code: updated ${claudeConfig}`);
+    }
+  }
+
+  if (flags.claudeDesktop || (doAll && existsSync(claudeDesktopConfig))) {
+    let doClaudeDesktop = true;
+    if (doAll) {
+      const ans = await prompt("Configure Claude Desktop? (y/n) ");
+      doClaudeDesktop = ans.toLowerCase() === "y";
+    }
+    if (doClaudeDesktop) {
+      patchClaudeDesktopSettings(claudeDesktopConfig, binaryPath);
+      console.log(`✓ Claude Desktop: updated ${claudeDesktopConfig}`);
     }
   }
 

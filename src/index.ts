@@ -25,6 +25,7 @@ if (isIntegrate) {
   const binaryPath = Bun.which("mnem-http-mcp") ?? process.execPath;
   await runIntegrate(binaryPath, {
     claude: args.includes("--claude"),
+    claudeDesktop: args.includes("--claude-desktop"),
     opencode: args.includes("--opencode"),
   });
   process.exit(0);

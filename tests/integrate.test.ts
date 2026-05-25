@@ -2,7 +2,7 @@ import { describe, test, expect, beforeEach, afterEach } from "bun:test";
 import { mkdirSync, rmSync, writeFileSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { patchClaudeSettings, patchOpenCodeSettings } from "../src/integrate.ts";
+import { patchClaudeSettings, patchClaudeDesktopSettings, patchOpenCodeSettings } from "../src/integrate.ts";
 
 const TMP = join(tmpdir(), "integrate-test-" + Date.now());
 
@@ -24,6 +24,25 @@ describe("patchClaudeSettings", () => {
     patchClaudeSettings(configPath, "/usr/local/bin/mnem-http-mcp");
     const result = JSON.parse(readFileSync(configPath, "utf8"));
     expect(result.mcpServers.mnem).toBeDefined();
+  });
+});
+
+describe("patchClaudeDesktopSettings", () => {
+  test("adds mnem entry to existing mcpServers", () => {
+    const configPath = join(TMP, "claude_desktop_config.json");
+    writeFileSync(configPath, JSON.stringify({ mcpServers: {} }));
+    patchClaudeDesktopSettings(configPath, "/usr/local/bin/mnem-http-mcp");
+    const result = JSON.parse(readFileSync(configPath, "utf8"));
+    expect(result.mcpServers.mnem.command).toBe("/usr/local/bin/mnem-http-mcp");
+  });
+
+  test("preserves other mcpServers entries", () => {
+    const configPath = join(TMP, "claude_desktop_config.json");
+    writeFileSync(configPath, JSON.stringify({ mcpServers: { ollama: { command: "npx", args: ["-y", "ollama-mcp"] } } }));
+    patchClaudeDesktopSettings(configPath, "/usr/local/bin/mnem-http-mcp");
+    const result = JSON.parse(readFileSync(configPath, "utf8"));
+    expect(result.mcpServers.mnem.command).toBe("/usr/local/bin/mnem-http-mcp");
+    expect(result.mcpServers.ollama).toBeDefined();
   });
 });
 
