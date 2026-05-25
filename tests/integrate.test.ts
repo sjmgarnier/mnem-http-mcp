@@ -34,5 +34,14 @@ describe("patchOpenCodeSettings", () => {
     patchOpenCodeSettings(configPath, "/usr/local/bin/mnem-http-mcp");
     const result = JSON.parse(readFileSync(configPath, "utf8"));
     expect(result.mcp.mnem.command).toBe("/usr/local/bin/mnem-http-mcp");
+    expect(result.mcp.mnem.type).toBe("local");
+  });
+
+  test("creates mcp section if absent", () => {
+    const configPath = join(TMP, "opencode.json");
+    writeFileSync(configPath, JSON.stringify({}));
+    patchOpenCodeSettings(configPath, "/usr/local/bin/mnem-http-mcp");
+    const result = JSON.parse(readFileSync(configPath, "utf8"));
+    expect(result.mcp.mnem).toBeDefined();
   });
 });
