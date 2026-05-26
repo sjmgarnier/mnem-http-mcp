@@ -55,13 +55,18 @@ export const TOOLS: Tool[] = [
   },
   {
     name: "mnem_list_nodes",
-    description: "List nodes, optionally filtered by label." + ROUTE,
+    description:
+      "List nodes filtered by a property value, optionally narrowed to a specific label (node type). " +
+      "Requires at least a `where` filter (e.g. { status: \"active\" }) — " +
+      "the mnem HTTP server does not expose a label-only scan. " +
+      "Only the first key-value pair of `where` is forwarded to the server." +
+      ROUTE,
     inputSchema: {
       type: "object",
       properties: {
-        label: { type: "string" },
+        label: { type: "string", description: "Post-retrieval ntype filter. Must be paired with `where`." },
+        where: { type: "object", description: "Property equality filter. Only the first key-value pair is used." },
         limit: { type: "integer" },
-        offset: { type: "integer" },
         global: { type: "boolean" },
         repo: { type: "string" },
       },
@@ -70,14 +75,17 @@ export const TOOLS: Tool[] = [
   },
   {
     name: "mnem_search",
-    description: "Search for nodes by label and/or property filter." + ROUTE,
+    description:
+      "Exact-property match: filter nodes by a single property value, optionally narrowed to a node type. " +
+      "No embedding required. Only the first key-value pair of `where` is forwarded. " +
+      "`with_outgoing` is not supported by the HTTP backend." +
+      ROUTE,
     inputSchema: {
       type: "object",
       properties: {
-        label: { type: "string" },
+        label: { type: "string", description: "Post-retrieval ntype filter. Must be paired with `where`." },
+        where: { type: "object", description: "Property equality filter (e.g. { status: \"active\" }). Only the first key-value pair is used." },
         limit: { type: "integer" },
-        where: { type: "object" },
-        with_outgoing: { type: "array", items: { type: "string" } },
         global: { type: "boolean" },
         repo: { type: "string" },
       },

@@ -104,7 +104,7 @@ export async function ensureServer(
   const proc = Bun.spawn(
     [mnemBin, "http", "--repo", graphRoot, "--bind", `127.0.0.1:${port}`],
     {
-      env: { ...process.env, MNEM_HTTP_PUSH_TOKEN: token },
+      env: { ...process.env, MNEM_HTTP_PUSH_TOKEN: token, MNEM_LABELS: "1" },
       stdout: "ignore",
       stderr: "pipe",
     }

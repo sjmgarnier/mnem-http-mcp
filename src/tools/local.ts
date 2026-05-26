@@ -2,6 +2,22 @@ import type { MnemClient } from "../client.ts";
 
 type Args = Record<string, unknown>;
 
+/**
+ * Serialise the first entry of a `where` object to the `"KEY=VALUE"` string
+ * expected by the mnem HTTP server's `where_eq` field.
+ * String values are passed through as-is; everything else is JSON-encoded so
+ * the server's JSON-first parser picks up the correct type.
+ * Returns undefined when the object is empty or absent.
+ */
+function buildWhereEq(where: unknown): string | undefined {
+  if (!where || typeof where !== "object") return undefined;
+  const entries = Object.entries(where as Record<string, unknown>);
+  if (entries.length === 0) return undefined;
+  const [k, v] = entries[0];
+  const serialised = typeof v === "string" ? v : JSON.stringify(v);
+  return `${k}=${serialised}`;
+}
+
 function cliJson(mnemBin: string, repoPath: string, args: string[]): string {
   const res = Bun.spawnSync([mnemBin, ...args, "--repo", repoPath], {
     stdout: "pipe",
@@ -27,18 +43,45 @@ export async function mnem_list_tags(args: Args, client: MnemClient): Promise<st
 }
 
 export async function mnem_list_nodes(args: Args, client: MnemClient): Promise<string> {
+  const where_eq = buildWhereEq(args.where);
+  // The mnem HTTP /v1/retrieve endpoint requires at least one pre-filter
+  // (where_eq) or ranker (text + embedder). A label alone is only a
+  // post-retrieval filter and is insufficient. Return a clear error rather
+  // than forwarding a request that will always be rejected.
+  if (!where_eq && !args.text) {
+    return JSON.stringify({
+      error:
+        "mnem_list_nodes via HTTP requires at least a `where` property filter " +
+        "(e.g. { where: { status: \"active\" } }). " +
+        "The mnem HTTP server does not expose a label-only scan endpoint. " +
+        "To list all nodes of a type, also provide a `where` filter, or use " +
+        "`mnem_retrieve` with a text query.",
+    });
+  }
   const body: Record<string, unknown> = {};
   if (args.label) body.label = args.label;
   if (args.limit) body.limit = args.limit;
+  if (where_eq) body.where_eq = where_eq;
+  if (args.text) body.text = args.text;
   return JSON.stringify(await client.retrieve(body as any), null, 2);
 }
 
 export async function mnem_search(args: Args, client: MnemClient): Promise<string> {
+  const where_eq = buildWhereEq(args.where);
+  if (!where_eq && !args.text) {
+    return JSON.stringify({
+      error:
+        "mnem_search requires at least a `where` property filter " +
+        "(e.g. { where: { status: \"active\" } }) or a `text` query. " +
+        "Note: only the first key-value pair of `where` is used; " +
+        "the `with_outgoing` parameter is not supported by the HTTP backend.",
+    });
+  }
   const body: Record<string, unknown> = {};
   if (args.label) body.label = args.label;
   if (args.limit) body.limit = args.limit;
-  if (args.where) body.where = args.where;
-  if (args.with_outgoing) body.with_outgoing = args.with_outgoing;
+  if (where_eq) body.where_eq = where_eq;
+  if (args.text) body.text = args.text;
   return JSON.stringify(await client.retrieve(body as any), null, 2);
 }
 

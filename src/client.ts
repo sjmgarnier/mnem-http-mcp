@@ -27,7 +27,11 @@ export interface PostEdgeBody {
 export interface RetrieveBody {
   text?: string;
   label?: string;
-  where?: Record<string, unknown>;
+  /** Single property equality filter serialised as "KEY=VALUE".
+   *  VALUE is tried as JSON first, then falls back to a raw string.
+   *  Maps to the mnem HTTP server's `where_eq` query/body field.
+   *  Only one filter is supported per request. */
+  where_eq?: string;
   limit?: number;
   token_budget?: number;
   fusion?: string;
@@ -42,7 +46,6 @@ export interface RetrieveBody {
   rerank_top_k?: number;
   vector?: Record<string, unknown>;
   vector_cap?: number;
-  with_outgoing?: string[];
 }
 
 async function mnemFetch(url: string, options: RequestInit): Promise<unknown> {
